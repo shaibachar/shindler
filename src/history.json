@@ -1,0 +1,12 @@
+{
+    "file_list": [
+        "/home/shai/workspace/schindler25/file_list.json",
+        "/home/shai/workspace/schindler25/src/file_list.json"
+    ],
+    "source_folder": [
+        "/home/shai/workspace/schindler25/source"
+    ],
+    "destination_folder": [
+        "/home/shai/workspace/schindler25/destination"
+    ]
+}
