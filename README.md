@@ -1,6 +1,6 @@
 # File Copy Script
 
-This project provides a web-based graphical user interface (GUI) using FastAPI to manage the copying of files from a source folder to a destination folder based on a list provided in a JSON file. It includes functionalities for managing file updates, tags, and validating the destination folder.
+This project provides a web-based graphical user interface (GUI) using FastAPI to manage the copying of files from a source folder to a destination folder based on a list provided in a JSON file. It includes functionalities for managing file updates, tags, validating the destination folder, and generating a file list JSON.
 
 ## Features
 
@@ -11,6 +11,7 @@ This project provides a web-based graphical user interface (GUI) using FastAPI t
 - **Manage Tags**: Open and edit the JSON file for tags.
 - **Copy Files**: Copy files from the source folder to the destination folder based on the list.
 - **Validate Destination**: Validate that all files listed in the JSON file are present in the destination folder.
+- **Generate File List**: Generate a `file_list.json` file for a given folder path.
 - **History**: Keep track of the last 10 selections for each text field.
 
 ## Prerequisites
@@ -61,7 +62,7 @@ This project provides a web-based graphical user interface (GUI) using FastAPI t
 
 ### Main Window
 
-The main window allows you to select the file list, source folder, and destination folder. It also provides options to manage file updates and tags, copy files, and validate the destination.
+The main window allows you to select the file list, source folder, and destination folder. It also provides options to manage file updates and tags, copy files, validate the destination, and generate a file list.
 
 ![Main Window](images/main_window.png)
 
@@ -107,6 +108,12 @@ Validate that all files listed in the JSON file are present in the destination f
 
 ![Validate Destination](images/validate_destination.png)
 
+### Generate File List
+
+Generate a `file_list.json` file for a given folder path. The application will show a message indicating where the file list was saved.
+
+![Generate File List](images/generate_file_list.png)
+
 ## JSON File Formats
 
 ### File List JSON
@@ -128,3 +135,18 @@ The file list JSON should contain an array of files with their filenames, descri
         }
     ]
 }
+```
+### File Tags JSON
+
+```json
+{
+    "tags": [
+        "text",
+        "example",
+        "data",
+        "word",
+        "document",
+        "project"
+    ]
+}
+```
