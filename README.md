@@ -1,12 +1,12 @@
 # File Copy Script
 
-This project provides a graphical user interface (GUI) to manage the copying of files from a source folder to a destination folder based on a list provided in a JSON file. It includes functionalities for managing file updates, tags, and validating the destination folder.
+This project provides a web-based graphical user interface (GUI) using FastAPI to manage the copying of files from a source folder to a destination folder based on a list provided in a JSON file. It includes functionalities for managing file updates, tags, and validating the destination folder.
 
 ## Features
 
-- **Select File List**: Choose a JSON file containing the list of files to be copied.
-- **Select Source Folder**: Choose the folder where the source files are located.
-- **Select Destination Folder**: Choose the folder where the files will be copied.
+- **Select File List**: Choose a JSON file containing the list of files to be copied or enter a new path.
+- **Select Source Folder**: Choose the folder where the source files are located or enter a new path.
+- **Select Destination Folder**: Choose the folder where the files will be copied or enter a new path.
 - **Manage File Updates**: Open and edit the JSON file for file updates.
 - **Manage Tags**: Open and edit the JSON file for tags.
 - **Copy Files**: Copy files from the source folder to the destination folder based on the list.
@@ -16,7 +16,8 @@ This project provides a graphical user interface (GUI) to manage the copying of 
 ## Prerequisites
 
 - Python 3.x
-- `tkinter` (comes with the standard Python installation)
+- FastAPI
+- `uvicorn`
 
 ## Installation
 
@@ -34,10 +35,10 @@ This project provides a graphical user interface (GUI) to manage the copying of 
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
     ```
 
-3. Install any additional dependencies (if required):
+3. Install the dependencies:
 
     ```bash
-    pip install -r requirements.txt
+    pip install fastapi uvicorn jinja2
     ```
 
 ## Running the Application
@@ -48,11 +49,13 @@ This project provides a graphical user interface (GUI) to manage the copying of 
     cd src
     ```
 
-2. Run the application:
+2. Run the FastAPI application:
 
     ```bash
-    python file_copy_script.py
+    uvicorn main:app --reload
     ```
+
+3. Open your browser and go to `http://127.0.0.1:8000` to see the application.
 
 ## User Interface
 
@@ -64,19 +67,19 @@ The main window allows you to select the file list, source folder, and destinati
 
 ### File List Selection
 
-Select the JSON file that contains the list of files to be copied.
+Select the JSON file that contains the list of files to be copied or enter a new path.
 
 ![Select File List](images/select_file_list.png)
 
 ### Source Folder Selection
 
-Select the folder where the source files are located.
+Select the folder where the source files are located or enter a new path.
 
 ![Select Source Folder](images/select_source_folder.png)
 
 ### Destination Folder Selection
 
-Select the folder where the files will be copied.
+Select the folder where the files will be copied or enter a new path.
 
 ![Select Destination Folder](images/select_destination_folder.png)
 
