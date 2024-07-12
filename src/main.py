@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 import os
 import json
+import shutil
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")

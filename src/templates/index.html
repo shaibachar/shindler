@@ -15,7 +15,7 @@
             margin-bottom: 5px;
         }
         .form-group input {
-            width: 100%;
+            width: calc(100% - 110px);
             padding: 8px;
             box-sizing: border-box;
         }
@@ -25,6 +25,7 @@
             color: white;
             border: none;
             cursor: pointer;
+            margin-left: 10px;
         }
         .form-group button:hover {
             background-color: #0056b3;
@@ -45,6 +46,28 @@
             box-shadow: 2px 2px 5px #aaa;
         }
     </style>
+    <script>
+        function browseFile(id) {
+            const input = document.getElementById(id);
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.onchange = () => {
+                input.value = fileInput.files[0].path;
+            };
+            fileInput.click();
+        }
+
+        function browseFolder(id) {
+            const input = document.getElementById(id);
+            const folderInput = document.createElement('input');
+            folderInput.type = 'file';
+            folderInput.webkitdirectory = true;
+            folderInput.onchange = () => {
+                input.value = folderInput.files[0].path;
+            };
+            folderInput.click();
+        }
+    </script>
 </head>
 <body>
     <h1>File Copy Script</h1>
@@ -59,7 +82,10 @@
         <h2>Copy Files</h2>
         <form action="/copy-files" method="post" class="form-group">
             <label for="file_list">File List JSON Path:</label>
-            <input list="file_list_options" id="file_list" name="file_list" value="{{ file_list | default('') }}" required>
+            <div>
+                <input list="file_list_options" id="file_list" name="file_list" value="{{ file_list | default('') }}" required>
+                <button type="button" onclick="browseFile('file_list')">Browse</button>
+            </div>
             <datalist id="file_list_options">
                 {% for item in history['file_list'] %}
                 <option value="{{ item }}">{{ item }}</option>
@@ -67,7 +93,10 @@
             </datalist>
 
             <label for="source_folder">Source Folder:</label>
-            <input list="source_folder_options" id="source_folder" name="source_folder" value="{{ source_folder | default('') }}" required>
+            <div>
+                <input list="source_folder_options" id="source_folder" name="source_folder" value="{{ source_folder | default('') }}" required>
+                <button type="button" onclick="browseFolder('source_folder')">Browse</button>
+            </div>
             <datalist id="source_folder_options">
                 {% for item in history['source_folder'] %}
                 <option value="{{ item }}">{{ item }}</option>
@@ -75,7 +104,10 @@
             </datalist>
 
             <label for="destination_folder">Destination Folder:</label>
-            <input list="destination_folder_options" id="destination_folder" name="destination_folder" value="{{ destination_folder | default('') }}" required>
+            <div>
+                <input list="destination_folder_options" id="destination_folder" name="destination_folder" value="{{ destination_folder | default('') }}" required>
+                <button type="button" onclick="browseFolder('destination_folder')">Browse</button>
+            </div>
             <datalist id="destination_folder_options">
                 {% for item in history['destination_folder'] %}
                 <option value="{{ item }}">{{ item }}</option>
@@ -90,7 +122,10 @@
         <h2>Validate Destination</h2>
         <form action="/validate-destination" method="post" class="form-group">
             <label for="file_list_validate">File List JSON Path:</label>
-            <input list="file_list_options" id="file_list_validate" name="file_list" value="{{ file_list | default('') }}" required>
+            <div>
+                <input list="file_list_options" id="file_list_validate" name="file_list" value="{{ file_list | default('') }}" required>
+                <button type="button" onclick="browseFile('file_list_validate')">Browse</button>
+            </div>
             <datalist id="file_list_options">
                 {% for item in history['file_list'] %}
                 <option value="{{ item }}">{{ item }}</option>
@@ -98,7 +133,10 @@
             </datalist>
 
             <label for="destination_folder_validate">Destination Folder:</label>
-            <input list="destination_folder_options" id="destination_folder_validate" name="destination_folder" value="{{ destination_folder | default('') }}" required>
+            <div>
+                <input list="destination_folder_options" id="destination_folder_validate" name="destination_folder" value="{{ destination_folder | default('') }}" required>
+                <button type="button" onclick="browseFolder('destination_folder_validate')">Browse</button>
+            </div>
             <datalist id="destination_folder_options">
                 {% for item in history['destination_folder'] %}
                 <option value="{{ item }}">{{ item }}</option>
@@ -113,7 +151,10 @@
         <h2>Generate File List</h2>
         <form action="/generate-file-list" method="post" class="form-group">
             <label for="folder_path">Folder Path:</label>
-            <input list="source_folder_options" id="folder_path" name="folder_path" value="{{ folder_path | default('') }}" required>
+            <div>
+                <input list="source_folder_options" id="folder_path" name="folder_path" value="{{ folder_path | default('') }}" required>
+                <button type="button" onclick="browseFolder('folder_path')">Browse</button>
+            </div>
             <datalist id="source_folder_options">
                 {% for item in history['source_folder'] %}
                 <option value="{{ item }}">{{ item }}</option>
