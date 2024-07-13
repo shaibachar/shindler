@@ -4,9 +4,11 @@ from fastapi.templating import Jinja2Templates
 import os
 import json
 import shutil
+from pathlib import Path
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+BASE_DIR = Path(__file__).resolve().parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 HISTORY_FILE = "history.json"
 FILE_UPDATES_FILE = "file_updates.json"
