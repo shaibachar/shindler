@@ -26,7 +26,7 @@ This project provides a web-based graphical user interface (GUI) using FastAPI t
 
     ```bash
     git clone https://github.com/yourusername/file-copy-script.git
-    cd file-copy-script/src
+    cd file-copy-script
     ```
 
 2. (Optional) Create and activate a virtual environment:
@@ -44,19 +44,36 @@ This project provides a web-based graphical user interface (GUI) using FastAPI t
 
 ## Running the Application
 
-1. Navigate to the `src` directory:
+1. Run the FastAPI application using the provided entry point script:
 
     ```bash
-    cd src
+    python run.py
     ```
 
-2. Run the FastAPI application:
+2. Open your browser and go to `http://127.0.0.1:8000` to see the application.
+
+## Packaging the Application into an Executable
+
+To package the application into a single executable file without the need to install Python or Python libraries on the target computer, use PyInstaller:
+
+1. Install PyInstaller:
 
     ```bash
-    uvicorn main:app --reload
+    pip install pyinstaller
     ```
 
-3. Open your browser and go to `http://127.0.0.1:8000` to see the application.
+2. Create the executable using the provided spec file:
+
+    ```bash
+    pyinstaller run.spec -y
+    ```
+
+3. The executable will be generated in the `dist/run` directory. You can run it using:
+
+    ```bash
+    cd dist/run
+    ./run.exe
+    ```
 
 ## User Interface
 
@@ -135,18 +152,3 @@ The file list JSON should contain an array of files with their filenames, descri
         }
     ]
 }
-```
-### File Tags JSON
-
-```json
-{
-    "tags": [
-        "text",
-        "example",
-        "data",
-        "word",
-        "document",
-        "project"
-    ]
-}
-```
