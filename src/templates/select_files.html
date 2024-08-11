@@ -1,0 +1,10 @@
+<label for="source_folder">Source Folder:</label>
+<select id="source_folder" name="source_folder" onchange="updateFolderPath('source_folder')">
+    <option value="">Select or enter a folder...</option>
+    {% for folder in history.source_folders %}
+    <option value="{{ folder }}">{{ folder }}</option>
+    {% endfor %}
+</select>
+<input type="text" id="source_folder_input" name="source_folder_input" placeholder="Or type a new folder path">
+
+<button type="button" onclick="browseFolder('source_folder_input')">Browse</button>

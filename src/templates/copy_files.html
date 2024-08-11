@@ -1,0 +1,14 @@
+<div class="card">
+    <h2>Copy Files</h2>
+    <form id="copy_form" action="/copy-files" method="post" class="form-group">
+        <label for="source_folder">Source Folder:</label>
+        <input type="text" id="source_folder" name="source_folder" required>
+        <button type="button" onclick="browseFolder('source_folder')">Browse</button>
+
+        <label for="destination_folder">Destination Folder:</label>
+        <input type="text" id="destination_folder_copy" name="destination_folder" required>
+        <button type="button" onclick="browseFolder('destination_folder_copy')">Browse</button>
+
+        <button type="submit">Copy Files</button>
+    </form>
+</div>

@@ -1,151 +1,115 @@
+import logging
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 import os
 import json
-import shutil
 from pathlib import Path
 
 app = FastAPI()
 BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+
+# Set up basic logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 HISTORY_FILE = "history.json"
-FILE_UPDATES_FILE = "file_updates.json"
-TAGS_FILE = "tags.json"
+DATA_FILE = "data.json"
 
 def load_history():
     if os.path.exists(HISTORY_FILE):
         with open(HISTORY_FILE, "r") as f:
             return json.load(f)
-    return {"file_list": [], "source_folder": [], "destination_folder": []}
+    return {"file_list": [], "source_folder": [], "destination_folder": [], "tags": []}
 
 def save_history(history):
     history["file_list"] = list(dict.fromkeys(history["file_list"]))  # Remove duplicates
     history["source_folder"] = list(dict.fromkeys(history["source_folder"]))  # Remove duplicates
     history["destination_folder"] = list(dict.fromkeys(history["destination_folder"]))  # Remove duplicates
+    history["tags"] = list(dict.fromkeys(history["tags"]))  # Remove duplicates
     with open(HISTORY_FILE, "w") as f:
         json.dump(history, f, indent=4)
 
-def validate_files(file_list, destination_folder):
-    missing_files = []
-    for file_info in file_list:
-        if not os.path.exists(os.path.join(destination_folder, file_info["filename"])):
-            missing_files.append(file_info["filename"])
-    return missing_files
+# Function to update the history with a new entry
+def update_history(field_name, new_entry):
+    history = load_history()  # Load the existing history
 
-def copy_files(file_list_path, source_folder, destination_folder):
-    if not os.path.exists(file_list_path):
-        raise FileNotFoundError(f"File list '{file_list_path}' not found!")
+    if new_entry not in history[field_name]:  # Avoid duplicates
+        history[field_name].append(new_entry)  # Add the new entry to the appropriate field
+        save_history(history)  # Save the updated history
 
-    if not os.path.exists(source_folder):
-        raise FileNotFoundError(f"Source folder '{source_folder}' not found!")
 
-    if not os.path.exists(destination_folder):
-        os.makedirs(destination_folder)
+@app.post("/update-history")
+async def update_history_endpoint(request: Request):
+    data = await request.json()
+    field_name = data['field_name']
+    new_entry = data['new_entry']
 
-    with open(file_list_path, "r") as f:
-        file_list = json.load(f)["files"]
-
-    copied_files_count = 0
-    for file_info in file_list:
-        filename = file_info["filename"]
-        source_path = os.path.join(source_folder, filename)
-        destination_path = os.path.join(destination_folder, filename)
-        if os.path.exists(source_path):
-            shutil.copy2(source_path, destination_path)
-            copied_files_count += 1
-        else:
-            print(f"File '{filename}' not found in '{source_folder}'")
-
-    missing_files = validate_files(file_list, destination_folder)
-    return copied_files_count, missing_files
-
-def generate_file_list(folder_path):
-    if not os.path.exists(folder_path):
-        raise FileNotFoundError(f"Folder '{folder_path}' not found!")
-    
-    files = [{"filename": file, "description": "", "tags": []} for file in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, file))]
-    
-    file_list_path = os.path.join(folder_path, "file_list.json")
-    with open(file_list_path, "w") as f:
-        json.dump({"files": files}, f, indent=4)
-    
-    return file_list_path
+    update_history(field_name, new_entry)
+    return {"status": "success"}
 
 @app.get("/", response_class=HTMLResponse)
 async def get_form(request: Request):
     history = load_history()
     return templates.TemplateResponse("index.html", {"request": request, "history": history})
 
-@app.post("/copy-files", response_class=HTMLResponse)
-async def copy_files_endpoint(request: Request, file_list: str = Form(...), source_folder: str = Form(...), destination_folder: str = Form(...)):
+@app.post("/list-files", response_class=JSONResponse)
+async def list_files(folder_path: str = Form(...)):
+    if not os.path.exists(folder_path):
+        return JSONResponse(content={"error": "Folder not found"}, status_code=404)
+    
+    files = [{"filename": file} for file in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, file))]
+    return JSONResponse(content={"files": files})
+
+
+@app.post("/generate-json-list", response_class=HTMLResponse)
+async def generate_json_list(request: Request, folder_path: str = Form(...), file_list: str = Form(...), destination_folder: str = Form(...)):
+    logger.info(f"Received folder_path: {folder_path}")
+    logger.info(f"Received destination_folder: {destination_folder}")
+    logger.info(f"Received file_list: {file_list}")
+
+    # Split the file list by new lines and remove any empty lines
+    files = [file.strip() for file in file_list.split("\n") if file.strip()]
+    file_data = [{"filename": os.path.basename(file), "filepath": file} for file in files]
+
+    # Validate that files are not empty
+    if not files:
+        logger.error("No valid files found in the file list.")
+        return HTMLResponse(content="No valid files found in the file list.", status_code=400)
+
+    # Ensure the destination folder exists
+    if not os.path.isdir(destination_folder):
+        logger.error(f"The specified destination folder does not exist or is not a directory: {destination_folder}")
+        return HTMLResponse(content="The specified destination folder does not exist or is not a directory.", status_code=400)
+
+    # Define the path where the JSON file will be created
+    json_file_path = os.path.join(destination_folder, "file_list.json")
+    logger.info(f"File list path to be created: {json_file_path}")
+
+    # Write the file list to the JSON file
     try:
-        copied_files_count, missing_files = copy_files(file_list, source_folder, destination_folder)
-        message = f"Copying process completed. {copied_files_count} files copied."
-        if missing_files:
-            message += f" Missing files in destination: {', '.join(missing_files)}"
-    except FileNotFoundError as e:
-        message = str(e)
-    
-    history = load_history()
-    if file_list not in history["file_list"]:
-        history["file_list"].append(file_list)
-    if source_folder not in history["source_folder"]:
-        history["source_folder"].append(source_folder)
-    if destination_folder not in history["destination_folder"]:
-        history["destination_folder"].append(destination_folder)
-    save_history(history)
-    
-    return templates.TemplateResponse("index.html", {"request": request, "message": message, "history": history, "file_list": file_list, "source_folder": source_folder, "destination_folder": destination_folder})
+        with open(json_file_path, "w") as f:
+            json.dump({"files": file_data}, f, indent=4)
+    except Exception as e:
+        logger.error(f"Failed to write the JSON file: {e}")
+        return HTMLResponse(content=f"Failed to write the JSON file: {e}", status_code=500)
 
-@app.post("/validate-destination", response_class=HTMLResponse)
-async def validate_destination_endpoint(request: Request, file_list: str = Form(...), destination_folder: str = Form(...)):
-    try:
-        with open(file_list, "r") as f:
-            file_list_data = json.load(f)["files"]
-        missing_files = validate_files(file_list_data, destination_folder)
-        if missing_files:
-            message = f"Missing files in destination: {', '.join(missing_files)}"
-        else:
-            message = "All files are present in the destination folder."
-    except FileNotFoundError as e:
-        message = str(e)
-    
-    history = load_history()
-    if file_list not in history["file_list"]:
-        history["file_list"].append(file_list)
-    if destination_folder not in history["destination_folder"]:
-        history["destination_folder"].append(destination_folder)
-    save_history(history)
-    
-    return templates.TemplateResponse("index.html", {"request": request, "message": message, "history": history, "file_list": file_list, "destination_folder": destination_folder})
+    message = f"File list generated successfully at {json_file_path}"
+    logger.info(message)
 
-@app.post("/generate-file-list", response_class=HTMLResponse)
-async def generate_file_list_endpoint(request: Request, folder_path: str = Form(...)):
-    try:
-        file_list_path = generate_file_list(folder_path)
-        message = f"File list generated successfully at {file_list_path}"
-    except FileNotFoundError as e:
-        message = str(e)
-    
-    history = load_history()
-    if folder_path not in history["source_folder"]:
-        history["source_folder"].append(folder_path)
-    save_history(history)
-    
-    return templates.TemplateResponse("index.html", {"request": request, "message": message, "history": history, "folder_path": folder_path})
+    # Return to the index page with a success message
+    return templates.TemplateResponse("index.html", {"request": request, "message": message})
 
-@app.get("/manage-files", response_class=HTMLResponse)
-async def manage_files():
-    if not os.path.exists(FILE_UPDATES_FILE):
-        with open(FILE_UPDATES_FILE, "w") as f:
-            json.dump({}, f, indent=4)
-    return FileResponse(FILE_UPDATES_FILE)
-
-@app.get("/manage-tags", response_class=HTMLResponse)
-async def manage_tags():
-    if not os.path.exists(TAGS_FILE):
-        with open(TAGS_FILE, "w") as f:
-            json.dump({"tags": []}, f, indent=4)
-    return FileResponse(TAGS_FILE)
+@app.get("/tags", response_class=JSONResponse)
+async def get_tags():
+    tags_file = BASE_DIR / "tags.json"
+    if os.path.exists(tags_file):
+        with open(tags_file, "r") as f:
+            tags = json.load(f).get("tags", [])
+    else:
+        tags = []
+    return JSONResponse(content=tags)

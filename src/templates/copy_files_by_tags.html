@@ -1,0 +1,14 @@
+<div class="card">
+    <h2>Copy Files by Tags</h2>
+    <form id="tag_form" action="/copy-files-by-tags" method="post" class="form-group">
+        <label for="tags">Tags:</label>
+        <input type="text" id="tags" name="tags" required>
+        <button type="button" onclick="openTagPopup()">Select Tags</button>
+
+        <label for="destination_folder">Destination Folder:</label>
+        <input type="text" id="destination_folder_tags" name="destination_folder" required>
+        <button type="button" onclick="browseFolder('destination_folder_tags')">Browse</button>
+
+        <button type="submit">Copy Files</button>
+    </form>
+</div>

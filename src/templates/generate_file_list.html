@@ -1,0 +1,10 @@
+<div class="card">
+    <h2>Generate File List</h2>
+    <form id="folder_form" onsubmit="fetchFiles(); return false;" class="form-group">
+        <label for="folder_path">Select Folder:</label>
+        <input type="text" id="folder_path" name="folder_path" required>
+        <button type="button" onclick="browseFolder('folder_path')">Browse</button>
+        <button type="submit">Load Files</button>
+    </form>
+    <div id="fileContainer"></div>
+</div>

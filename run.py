@@ -3,7 +3,7 @@ import uvicorn
 import asyncio
 
 async def run_server():
-    config = uvicorn.Config("src.main:app", host="127.0.0.1", port=8000)
+    config = uvicorn.Config("src.main:app", host="127.0.0.1", port=8000, reload=True)
     server = uvicorn.Server(config)
 
     # Run the server in a separate task

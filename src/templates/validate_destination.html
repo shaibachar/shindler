@@ -1,0 +1,28 @@
+<div class="card">
+    <h2>Validate Destination</h2>
+    <form action="/validate-destination" method="post" class="form-group">
+        <label for="file_list_validate">File List JSON Path:</label>
+        <div>
+            <input list="file_list_options" id="file_list_validate" name="file_list" value="{{ file_list | default('') }}" required>
+            <button type="button" onclick="browseFile('file_list_validate')">Browse</button>
+        </div>
+        <datalist id="file_list_options">
+            {% for item in history['file_list'] %}
+            <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </datalist>
+
+        <label for="destination_folder_validate">Destination Folder:</label>
+        <div>
+            <input list="destination_folder_options" id="destination_folder_validate" name="destination_folder" value="{{ destination_folder | default('') }}" required>
+            <button type="button" onclick="browseFolder('destination_folder_validate')">Browse</button>
+        </div>
+        <datalist id="destination_folder_options">
+            {% for item in history['destination_folder'] %}
+            <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </datalist>
+
+        <button type="submit">Validate Destination</button>
+    </form>
+</div>
